@@ -155,7 +155,7 @@ void CMundo::OnTimer(int value)
 	}
 	if(puntos1>=3 || puntos2 >=3)
 	{
-	exit(0);
+		exit(0);
 	}
 }
 
