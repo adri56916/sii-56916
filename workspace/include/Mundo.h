@@ -17,6 +17,7 @@
 
 class CMundo  
 {
+	int fd_logger;
 public:
 	void Init();
 	CMundo();

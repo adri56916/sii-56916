@@ -4,7 +4,8 @@
 #include <fstream>
 #include "Mundo.h"
 #include "glut.h"
-
+#include <fcntl.h>
+#include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -21,7 +22,7 @@ CMundo::CMundo()
 
 CMundo::~CMundo()
 {
-
+	close(fd_logger);
 }
 
 void CMundo::InitGL()
@@ -115,6 +116,7 @@ void CMundo::OnDraw()
 
 void CMundo::OnTimer(int value)
 {	
+	
 	jugador1.Mueve(0.025f);
 	jugador2.Mueve(0.025f);
 	esfera.Mueve(0.025f);
@@ -135,6 +137,9 @@ void CMundo::OnTimer(int value)
 		esfera.velocidad.x=2+2*rand()/(float)RAND_MAX;
 		esfera.velocidad.y=2+2*rand()/(float)RAND_MAX;
 		puntos2++;
+		char msg2[128];
+		int len2 = sprintf(msg2, "Jugador 2 marca 1 punto, lleva un total de %d puntos.\n", puntos2);
+		write(fd_logger,msg2,len2);
 	}
 
 	if(fondo_dcho.Rebota(esfera))
@@ -144,8 +149,14 @@ void CMundo::OnTimer(int value)
 		esfera.velocidad.x=-2-2*rand()/(float)RAND_MAX;
 		esfera.velocidad.y=-2-2*rand()/(float)RAND_MAX;
 		puntos1++;
+		char msg1[128];
+		int len1 = sprintf(msg1,"JUgador 1 marca 1 punto, lleva un total de %d puntos.\n", puntos1);
+		write(fd_logger,msg1,len1);
 	}
-
+	if(puntos1>=3 || puntos2 >=3)
+	{
+	exit(0);
+	}
 }
 
 void CMundo::OnKeyboardDown(unsigned char key, int x, int y)
@@ -164,6 +175,7 @@ void CMundo::OnKeyboardDown(unsigned char key, int x, int y)
 
 void CMundo::Init()
 {
+	fd_logger = open("fifo_tenis",O_WRONLY);
 	Plano p;
 //pared inferior
 	p.x1=-7;p.y1=-5;
