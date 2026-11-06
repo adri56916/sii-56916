@@ -7,6 +7,7 @@
 
 #include <vector>
 #include "Plano.h"
+#include "DatosMemCompartida.h"
 
 #if _MSC_VER > 1000
 #pragma once
@@ -19,6 +20,7 @@ class CMundo
 {
 	int fd_logger;
 public:
+	DatosMemCompartida* dat;
 	void Init();
 	CMundo();
 	virtual ~CMundo();	

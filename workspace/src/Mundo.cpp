@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "DatosMemCompartida.h"
+#include <sys/mman.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -116,7 +118,18 @@ void CMundo::OnDraw()
 
 void CMundo::OnTimer(int value)
 {	
-	
+	if(dat != MAP_FAILED && dat != nullptr) {
+		dat->esfera = this->esfera;
+		dat->raqueta1 = this->jugador1;
+		jugador1.velocidad.y = 0;
+		if (dat->accion == 1) {
+			OnKeyboardDown('w', 0, 0);
+		}
+		else if (dat->accion == -1) {
+			OnKeyboardDown ('s', 0, 0);
+		}
+	}	
+
 	jugador1.Mueve(0.025f);
 	jugador2.Mueve(0.025f);
 	esfera.Mueve(0.025f);
@@ -175,7 +188,16 @@ void CMundo::OnKeyboardDown(unsigned char key, int x, int y)
 
 void CMundo::Init()
 {
-	fd_logger = open("fifo_tenis",O_WRONLY);
+	fd_logger = open("fifo_tenis", O_WRONLY);
+	int fd_mem = open("datos_tenis.bin", O_RDWR | O_CREAT | O_TRUNC, 0666);
+	ftruncate(fd_mem, sizeof(DatosMemCompartida));
+	dat = (DatosMemCompartida*) mmap(NULL, sizeof(DatosMemCompartida), PROT_READ | PROT_WRITE, MAP_SHARED, fd_mem, 0);
+	close (fd_mem);
+	
+	if(dat != MAP_FAILED) {
+		dat->accion = 0;
+	}
+	
 	Plano p;
 //pared inferior
 	p.x1=-7;p.y1=-5;
