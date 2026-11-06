@@ -8,3 +8,6 @@ Aprendizaje de comandos básicos para la navegación y programación dentro de l
 Práctica 2 - 22/10/2026:
 Hemos actualizado el juego "Tenis" añadiendo un sistema de puntos para los dos jugadores, y la regla de que si uno de ellos llega a tres puntos, se acaba la partida.
 Además, hemos trabajado con las ramas "Branch" y copiado un archivo "logger.cpp" de una carpeta a otra.
+
+Práctica 3 - 4/11/2026:
+Hemos implementado la memoria compartida, y copiado el archivo "bot" desde el directorio "external" al directorio "src" para modificarlo, y conseguir que uno de los jugadores mueva su posición de manera automática, según la posición actual de la esfera.
