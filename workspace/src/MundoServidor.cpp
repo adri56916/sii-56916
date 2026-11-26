@@ -2,7 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 #include <fstream>
-#include "Mundo.h"
+#include "MundoServidor.h"
 #include "glut.h"
 #include <fcntl.h>
 #include <unistd.h>
@@ -10,8 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "DatosMemCompartida.h"
-#include <sys/mman.h>
+//#include "DatosMemCompartida.h"
+//#include <sys/mman.h>
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -25,6 +25,8 @@ CMundo::CMundo()
 CMundo::~CMundo()
 {
 	close(fd_logger);
+	close (fd_coords);
+	unlink("/tmp/fifo_coords");
 }
 
 void CMundo::InitGL()
@@ -128,7 +130,12 @@ void CMundo::OnTimer(int value)
 		else if (dat->accion == -1) {
 			OnKeyboardDown ('s', 0, 0);
 		}
-	}	
+	}
+	
+	char cad[200] = {0};
+	sprintf(cad, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d", esfera.centro.x, esfera.centro.y, jugador1.x1, jugador1.y1, jugador1.x2, jugador1.y2, jugador2.x1, jugador2.y1, jugador2.x2, jugador2.y2, puntos1, puntos2);
+	write(fd_coords, cad, sizeof(cad));
+	
 
 	jugador1.Mueve(0.025f);
 	jugador2.Mueve(0.025f);
@@ -197,6 +204,9 @@ void CMundo::Init()
 	if(dat != MAP_FAILED) {
 		dat->accion = 0;
 	}
+	
+	mkfifo("/tmp/fifo_coords", 0666);
+	fd_coords = open("/tmp/fifo_coords", O_WRONLY);
 	
 	Plano p;
 //pared inferior
