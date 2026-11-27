@@ -11,3 +11,6 @@ Además, hemos trabajado con las ramas "Branch" y copiado un archivo "logger.cpp
 
 Práctica 3 - 4/11/2026:
 Hemos implementado la memoria compartida, y copiado el archivo "bot" desde el directorio "external" al directorio "src" para modificarlo, y conseguir que uno de los jugadores mueva su posición de manera automática, según la posición actual de la esfera.
+
+Práctica 4 - 26/11/2026:
+Hemos separado el juego en "servidor" (comunicado con el "logger") y "cliente" (comunicado con el "bot") enlazados con tuberías FIFO para enviar coordenadas y teclas. También empleamos un hilo (pthread) para recibir los comandos de forma concurrente, sin bloquear el juego.
