@@ -7,7 +7,7 @@
 
 #include <vector>
 #include "Plano.h"
-#include "DatosMemCompartida.h"
+//#include "DatosMemCompartida.h"
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <cstring>
@@ -26,9 +26,9 @@ class CMundo
 	int fd_logger;
 	int fd_coords;
 	int fd_teclas;
-	//
+	pthread_t thid1;
 public:
-	DatosMemCompartida* dat;
+	//DatosMemCompartida* dat;
 	void Init();
 	CMundo();
 	virtual ~CMundo();	

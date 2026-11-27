@@ -16,7 +16,7 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-
+void* hilo_comandos(void* d);
 CMundo::CMundo()
 {
 	Init();
@@ -27,6 +27,8 @@ CMundo::~CMundo()
 	close(fd_logger);
 	close (fd_coords);
 	unlink("/tmp/fifo_coords");
+	close(fd_teclas);
+	pthread_cancel(thid1);
 }
 
 void CMundo::InitGL()
@@ -120,7 +122,7 @@ void CMundo::OnDraw()
 
 void CMundo::OnTimer(int value)
 {	
-	if(dat != MAP_FAILED && dat != nullptr) {
+	/*if(dat != MAP_FAILED && dat != nullptr) {
 		dat->esfera = this->esfera;
 		dat->raqueta1 = this->jugador1;
 		jugador1.velocidad.y = 0;
@@ -130,10 +132,10 @@ void CMundo::OnTimer(int value)
 		else if (dat->accion == -1) {
 			OnKeyboardDown ('s', 0, 0);
 		}
-	}
+	}*/
 	
 	char cad[200] = {0};
-	sprintf(cad, "%f, %f, %f, %f, %f, %f, %f, %f, %f, %f, %d, %d", esfera.centro.x, esfera.centro.y, jugador1.x1, jugador1.y1, jugador1.x2, jugador1.y2, jugador2.x1, jugador2.y1, jugador2.x2, jugador2.y2, puntos1, puntos2);
+	sprintf(cad, "%f %f %f %f %f %f %f %f %f %f %d %d", esfera.centro.x, esfera.centro.y, jugador1.x1, jugador1.y1, jugador1.x2, jugador1.y2, jugador2.x1, jugador2.y1, jugador2.x2, jugador2.y2, puntos1, puntos2);
 	write(fd_coords, cad, sizeof(cad));
 	
 
@@ -181,7 +183,7 @@ void CMundo::OnTimer(int value)
 
 void CMundo::OnKeyboardDown(unsigned char key, int x, int y)
 {
-	switch(key)
+	/*switch(key)
 	{
 //	case 'a':jugador1.velocidad.x=-1;break;
 //	case 'd':jugador1.velocidad.x=1;break;
@@ -190,23 +192,24 @@ void CMundo::OnKeyboardDown(unsigned char key, int x, int y)
 	case 'l':jugador2.velocidad.y=-4;break;
 	case 'o':jugador2.velocidad.y=4;break;
 
-	}
+	}*/
 }
 
 void CMundo::Init()
 {
 	fd_logger = open("fifo_tenis", O_WRONLY);
-	int fd_mem = open("datos_tenis.bin", O_RDWR | O_CREAT | O_TRUNC, 0666);
+	/*int fd_mem = open("datos_tenis.bin", O_RDWR | O_CREAT | O_TRUNC, 0666);
 	ftruncate(fd_mem, sizeof(DatosMemCompartida));
 	dat = (DatosMemCompartida*) mmap(NULL, sizeof(DatosMemCompartida), PROT_READ | PROT_WRITE, MAP_SHARED, fd_mem, 0);
 	close (fd_mem);
 	
 	if(dat != MAP_FAILED) {
 		dat->accion = 0;
-	}
+	}*/
 	
 	mkfifo("/tmp/fifo_coords", 0666);
 	fd_coords = open("/tmp/fifo_coords", O_WRONLY);
+	pthread_create(&thid1, NULL, hilo_comandos, this);
 	
 	Plano p;
 //pared inferior
@@ -237,3 +240,26 @@ void CMundo::Init()
 	jugador2.x1=6;jugador2.y1=-1;
 	jugador2.x2=6;jugador2.y2=1;
 }
+void* hilo_comandos(void* d)
+{
+	CMundo* p = (CMundo*) d;
+	p->RecibeComandosJugador();
+	return NULL;
+}
+void CMundo::RecibeComandosJugador()
+{
+	fd_teclas = open("/tmp/fifo_teclas", O_RDONLY);
+	while(1){
+		usleep(10);
+		char cad[100] = {0};
+		if(read(fd_teclas, cad, sizeof(cad)) > 0) {
+		unsigned char key;
+		sscanf(cad, "%c", &key);
+		if(key == 's') jugador1.velocidad.y = -4;
+		if(key == 'w') jugador1.velocidad.y = 4;
+		if(key == 'l') jugador2.velocidad.y = -4;
+		if(key == 'o') jugador2.velocidad.y = 4;
+		}
+	}
+}
+
